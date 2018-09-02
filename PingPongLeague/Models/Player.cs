@@ -46,13 +46,13 @@ namespace PingPongLeague.Models
 			{
 				var sb = new StringBuilder();
 				var formMatches = MatchParticipations
-					.SelectMany(mp => mp.CompetitionResults)
-					.Where(c => c.Competition.CompetitionType == CompetitionType.AllTime)
+					.OrderByDescending(x => x.Match.DateOfMatch)
+					.ThenByDescending(x => x.Match.MatchID)
 					.Take(FORM_NO_OF_MATCHES)
 					.ToList();
 				for (int i = 0; i < FORM_NO_OF_MATCHES; i++)
 				{
-					var resultChar = formMatches.Select(m => m.MatchParticipation.Winner ? "W" : "L").ElementAtOrDefault(i);
+					var resultChar = formMatches.Select(m => m.Winner ? "W" : "L").ElementAtOrDefault(i);
 					if (resultChar == null) resultChar = "-";
 					sb.Append($"{resultChar} ");
 				};
