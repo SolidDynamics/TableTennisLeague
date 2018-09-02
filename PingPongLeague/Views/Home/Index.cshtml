@@ -1,0 +1,51 @@
+﻿@model IEnumerable<PingPongLeague.Controllers.LeaderboardPosition>
+@{
+    ViewData["Title"] = "ICAS Table Tennis League";
+}
+<div class="row">
+    <div class="col-md-9">
+        <h2>All time leaderboard</h2>
+        <table class="table table-hover">
+            <thead class="thead-dark">
+                <tr class="thead-dark"y>
+                    <td>Ranking</td>
+                    <td>Player</td>
+                    <td>Rating</td>
+                    <td>Form</td>
+                </tr>
+            </thead>
+            @foreach (var player in Model)
+            {
+            <tr>
+                <td>@player.Rank</td>
+                <td>@player.Name</td>
+                <td><span class="badge badge-primary badge-pill">@player.Rating</span></td>
+                <td style="font-family: monospace">@player.Form</td>
+            </tr>
+            }
+        </table>
+    </div>
+    @*<div class="col-md-4">
+            <h2>@($"{DateTime.Now:MMMM} league")</h2>
+            <table class="table table-hover">
+                <tr>
+                    <td>Zarko</td>
+                    <td>Andrew</td>
+                    <td>Andy</td>
+                    <td>Ian</td>
+                    <td>Iain</td>
+                    <td>Patrick</td>
+                </tr>
+            </table>
+        </div>*@
+    @*<div class="col-md-4">
+            <h2>Latest Results</h2>
+            <ul class="list-group">
+                @foreach (var result in Model)
+                {
+                    <li class="ist-group-item d-flex justify-content-between align-items-center">@result.Winner beat @result.Loser</li>
+                }
+            </ul>
+        </div>*@
+
+</div>
