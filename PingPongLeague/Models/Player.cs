@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -58,6 +59,20 @@ namespace PingPongLeague.Models
 				};
 				return sb.ToString().Trim();
 			}
+		}
+		
+		internal int GetMonthRating(int year, int month)
+		{
+			var mostRecentRating = MatchParticipations
+				.SelectMany(mp => mp.CompetitionResults)
+				.Where(cr => cr.Competition.CompetitionType == CompetitionType.Monthly)
+				.Where(cr => cr.MatchParticipation.Match.DateOfMatch.Year == year)
+				.Where(cr => cr.MatchParticipation.Match.DateOfMatch.Month == month)
+				.OrderByDescending(cr => cr.MatchParticipation.Match.DateOfMatch)
+				.ThenByDescending(cr => cr.MatchParticipation.MatchID)
+				.FirstOrDefault();
+
+			return (mostRecentRating == null) ? 2000 : mostRecentRating.Ratings.ClosingRating;
 		}
 	}
 }

@@ -1,9 +1,9 @@
-﻿@model IEnumerable<PingPongLeague.Controllers.LeaderboardPosition>
+﻿@model PingPongLeague.ViewModels.HomePageVM
 @{
     ViewData["Title"] = "ICAS Table Tennis League";
 }
 <div class="row">
-    <div class="col-md-9">
+    <div class="col-md-6">
         <h2>All time leaderboard</h2>
         <table class="table table-hover">
             <thead class="thead-dark">
@@ -14,7 +14,7 @@
                     <td>Form</td>
                 </tr>
             </thead>
-            @foreach (var player in Model)
+            @foreach (var player in Model.AllTimeLeaderboard)
             {
             <tr>
                 <td>@player.Rank</td>
@@ -25,27 +25,34 @@
             }
         </table>
     </div>
-    @*<div class="col-md-4">
-            <h2>@($"{DateTime.Now:MMMM} league")</h2>
-            <table class="table table-hover">
-                <tr>
-                    <td>Zarko</td>
-                    <td>Andrew</td>
-                    <td>Andy</td>
-                    <td>Ian</td>
-                    <td>Iain</td>
-                    <td>Patrick</td>
+    <div class="col-md-3">
+
+        <h2>@($"{DateTime.Now:MMMM} league")</h2>
+        <table class="table table-hover">
+            <thead class="thead-dark">
+                <tr class="thead-dark" y>
+                    <td>Ranking</td>
+                    <td>Player</td>
+                    <td>Rating</td>
                 </tr>
-            </table>
-        </div>*@
-    @*<div class="col-md-4">
+            </thead>
+            @foreach (var player in Model.MonthLeaderboard)
+            {
+                <tr>
+                    <td>@player.Rank</td>
+                    <td>@player.Name</td>
+                    <td><span class="badge badge-primary badge-pill">@player.Rating</span></td>
+                </tr>}
+        </table>
+        </div>
+    <div class="col-md-3">
             <h2>Latest Results</h2>
             <ul class="list-group">
-                @foreach (var result in Model)
+                @foreach (var result in Model.RecentGames)
                 {
-                    <li class="ist-group-item d-flex justify-content-between align-items-center">@result.Winner beat @result.Loser</li>
+                    <li class="ist-group-item d-flex justify-content-between align-items-center">@result</li>
                 }
             </ul>
-        </div>*@
+        </div>
 
 </div>

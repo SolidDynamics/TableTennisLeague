@@ -157,7 +157,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Calculators\ELORatingCalculator.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\LeaderboardPosition.cs" />
+    <Compile Include="ViewModels\LeaderboardPosition.cs" />
     <Compile Include="DAL\LeagueContext.cs" />
     <Compile Include="DAL\LeagueInitializer.cs" />
     <Compile Include="Global.asax.cs">
@@ -172,6 +172,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceLayer\MatchService.cs" />
     <Compile Include="Models\Ratings.cs" />
+    <Compile Include="ViewModels\HomePageVM.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-theme.css" />

@@ -1,4 +1,4 @@
-﻿namespace PingPongLeague.Controllers
+﻿namespace PingPongLeague.ViewModels
 {
 	public class LeaderboardPosition
 	{
