@@ -22,9 +22,9 @@ namespace PingPongLeague.Controllers
 			return View(homePageViewModel);
 		}
 
-		private IEnumerable<string> GetRecentGames()
+		private Dictionary<int, string> GetRecentGames()
 		{
-			return db.Matches.OrderByDescending(x => x.DateOfMatch).ThenByDescending(x => x.MatchID).Take(10).ToList().Select(x => x.ToString());
+			return db.Matches.OrderByDescending(x => x.DateOfMatch).ThenByDescending(x => x.MatchID).Take(10).ToList().ToDictionary(x => x.MatchID, x => x.ToString());
 		}
 
 		public ActionResult About()

@@ -20,5 +20,7 @@ namespace PingPongLeague.DAL
         {
             modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
         }
-    }
+
+		public System.Data.Entity.DbSet<PingPongLeague.ViewModels.MatchCreateModel> MatchCreateModels { get; set; }
+	}
 }

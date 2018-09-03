@@ -6,6 +6,6 @@ namespace PingPongLeague.ViewModels
 	{
 		public IEnumerable<LeaderboardPosition> AllTimeLeaderboard { get; internal set; }
 		public IEnumerable<LeaderboardPosition> MonthLeaderboard { get; internal set; }
-		public IEnumerable<string> RecentGames { get; internal set; }
+		public Dictionary<int, string> RecentGames { get; internal set; }
 	}
 }

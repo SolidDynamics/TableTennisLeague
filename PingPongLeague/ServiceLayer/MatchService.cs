@@ -28,7 +28,12 @@ namespace PingPongLeague.ServiceLayer
 			_ratingCalc = new ELORatingCalculator();
 		}
 
-		public void AddMatch(DateTime dateOfMatch, int player1, int player2, MatchWinner winner)
+		internal Match GetMatch(int id)
+		{
+			return db.Matches.Include("MatchParticipations").Include("MatchParticipations.CompetitionResults").Include("MatchParticipations.CompetitionResults.Competition").Single(m => m.MatchID == id);
+		}
+
+		public int AddMatch(DateTime dateOfMatch, int player1, int player2, MatchWinner winner)
 		{
 			Match match = new Match() { DateOfMatch = dateOfMatch, MatchParticipations = new List<MatchParticipation>() };
 
@@ -37,6 +42,8 @@ namespace PingPongLeague.ServiceLayer
 
 			db.Matches.Add(match);
 			db.SaveChanges();
+
+			return match.MatchID;
 		}
 
 		private MatchParticipation CreateMatchParticipation(int playerId, int opponentId, bool winner)

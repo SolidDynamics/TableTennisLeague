@@ -50,7 +50,7 @@
             <ul class="list-group">
                 @foreach (var result in Model.RecentGames)
                 {
-                    <li class="ist-group-item d-flex justify-content-between align-items-center">@result</li>
+                    <li class="ist-group-item d-flex justify-content-between align-items-center">@Html.ActionLink(result.Value, "Details", new { Controller = "Match", Id = result.Key })</li>
                 }
             </ul>
         </div>

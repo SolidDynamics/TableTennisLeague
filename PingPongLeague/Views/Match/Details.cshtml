@@ -1,0 +1,95 @@
+﻿@model PingPongLeague.ViewModels.MatchVM
+@{
+    PingPongLeague.ViewModels.CompetitionResultVM compResultProxy = null;
+    ViewBag.Title = "Match Details";
+}
+
+<h2>@Model</h2>
+<div class="container">
+    <div class="row">
+        @foreach (var comp in Model.CompetitionResults)
+        {
+            <div class="col-md-6">
+                <h4>@comp.CompetitionName Ratings</h4>
+                <table class="table table-hover table-striped">
+                    <thead class="thead-dark">
+                        <tr class="thead-dark">
+                            <td></td>
+                            <td>@Model.WinnerName</td>
+                            <td>@Model.LoserName</td>
+                        </tr>
+                    </thead>
+                    <tr>
+                        <td>
+                            @Html.DisplayNameFor(p => compResultProxy.OpeningRating)
+                        </td>
+                        <td>
+                            @comp.WinnerCompResult.OpeningRating
+                        </td>
+                        <td>
+                            @comp.LoserCompResult.OpeningRating
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            @Html.DisplayNameFor(p => compResultProxy.TransformedRating)
+                        </td>
+                        <td>
+                            @($"{comp.WinnerCompResult.TransformedRating:#.###}")
+                        </td>
+                        <td>
+                            @($"{comp.LoserCompResult.TransformedRating:#.###}")
+                        </td>
+                    <tr>
+                        <td>
+                            @Html.DisplayNameFor(p => compResultProxy.ExpectedScore)
+                        </td>
+                        <td>
+                            @($"{comp.WinnerCompResult.ExpectedScore:#.###}")
+                        </td>
+                        <td>
+                            @($"{comp.LoserCompResult.ExpectedScore:#.###}")
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            @Html.DisplayNameFor(p => compResultProxy.KFactor)
+                        </td>
+                        <td>
+                            @comp.WinnerCompResult.KFactor
+                        </td>
+                        <td>
+                            @comp.LoserCompResult.KFactor
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            @Html.DisplayNameFor(p => compResultProxy.ActualScore)
+                        </td>
+                        <td>
+                            @comp.WinnerCompResult.ActualScore
+                        </td>
+                        <td>
+                            @comp.LoserCompResult.ActualScore
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            @Html.DisplayNameFor(p => compResultProxy.ClosingRating)
+                        </td>
+                        <td>
+                            @comp.WinnerCompResult.ClosingRating
+                        </td>
+                        <td>
+                            @comp.LoserCompResult.ClosingRating
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        }
+    </div>
+    </div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = 1 }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

@@ -10,6 +10,7 @@ namespace PingPongLeague.Models
 		[Required]
 		public CompetitionType CompetitionType { get; set; }
 
+		[Required]
 		public string Name { get; set; }
 
 		[Required]

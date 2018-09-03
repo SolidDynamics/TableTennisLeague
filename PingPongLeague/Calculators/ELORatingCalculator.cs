@@ -17,7 +17,7 @@ namespace PingPongLeague.Calculators
 
 			ratings.OpponentRating = opponentRating;
 
-			ratings.OpponentTransformedRating = Math.Pow(10, (ratings.OpponentRating / ELO_N_VALUE));
+			ratings.OpponentTransformedRating = Math.Pow(10, ((double)ratings.OpponentRating / ELO_N_VALUE));
 
 			ratings.ExpectedScore = ratings.TransformedRating / (ratings.TransformedRating + ratings.OpponentTransformedRating);
 
