@@ -158,14 +158,18 @@
     <Compile Include="Calculators\ELORatingCalculator.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MatchController.cs" />
+    <Compile Include="Models\Competition\AllTimeCompetition.cs" />
+    <Compile Include="Models\Competition\AllTimeCompetitionResult.cs" />
+    <Compile Include="Models\Competition\MonthlyCompetition.cs" />
+    <Compile Include="Models\Competition\MonthlyCompetitionResult.cs" />
     <Compile Include="ViewModels\LeaderboardPosition.cs" />
     <Compile Include="DAL\LeagueContext.cs" />
     <Compile Include="DAL\LeagueInitializer.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\Competition.cs" />
-    <Compile Include="Models\CompetitionResult.cs" />
+    <Compile Include="Models\Competition\Competition.cs" />
+    <Compile Include="Models\Competition\CompetitionResult.cs" />
     <Compile Include="Models\Match.cs" />
     <Compile Include="Models\MatchParticipation.cs" />
     <Compile Include="Models\Player.cs" />
@@ -176,6 +180,7 @@
     <Compile Include="ViewModels\HomePageVM.cs" />
     <Compile Include="ViewModels\MatchCreateModel.cs" />
     <Compile Include="ViewModels\MatchVM.cs" />
+    <Compile Include="ViewModels\PlayerVM.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-theme.css" />
@@ -219,6 +224,7 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Match\Details.cshtml" />
     <Content Include="Views\Match\Create.cshtml" />
+    <Content Include="Views\Match\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

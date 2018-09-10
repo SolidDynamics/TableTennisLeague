@@ -20,6 +20,25 @@
                 @Html.EditorFor(model => model.MatchDate, new { htmlAttributes = new { @class = "form-control" } })
                 @Html.ValidationMessageFor(model => model.MatchDate, "", new { @class = "text-danger" })
             </div>
+            <div class="col-md-10">
+
+                @Html.DropDownListFor(
+                    x => x.Winner,
+                    new SelectList(Model.Players, "PlayerID", "FullName", null),
+                    "-- Select --"
+               )
+                @Html.ValidationMessageFor(x => x.Winner)
+
+                beat
+
+                @Html.DropDownListFor(
+                    x => x.Loser,
+                    new SelectList(Model.Players, "PlayerID", "FullName", null),
+                    "-- Select --"
+               )
+                @Html.ValidationMessageFor(x => x.Loser)
+
+                </div>
         </div>
 
         <div class="form-group">

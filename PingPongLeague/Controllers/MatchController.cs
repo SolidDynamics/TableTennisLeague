@@ -1,4 +1,5 @@
-﻿using PingPongLeague.ServiceLayer;
+﻿using PingPongLeague.Models;
+using PingPongLeague.ServiceLayer;
 using PingPongLeague.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace PingPongLeague.Controllers
 		// GET: Match
 		public ActionResult Index()
 		{
-			return View();
+			return View(_matchService.GetMatches());
 		}
 
 		// GET: Match/Details/5
@@ -50,7 +51,8 @@ namespace PingPongLeague.Controllers
 			if (!winnerCompResults.Select(cr => cr.Competition.CompetitionID).SequenceEqual(loserCompResults.Select(cr => cr.Competition.CompetitionID)))
 				throw new Exception("The two players have different competitions stored");
 
-			foreach (var compResult in winnerCompResults)
+
+			foreach (AllTimeCompetitionResult compResult in winnerCompResults.OfType<AllTimeCompetitionResult>())
 			{
 				CompetitionMatchResultVM competitionMatchResult = new CompetitionMatchResultVM
 				{
@@ -71,9 +73,11 @@ namespace PingPongLeague.Controllers
 				matchVM.CompetitionResults.Add(competitionMatchResult);
 			}
 
-			foreach (var compResult in loserCompResults)
+			foreach (var compResult in loserCompResults.OfType<AllTimeCompetitionResult>())
 			{
-				matchVM.CompetitionResults.Where(c => c.CompetitionID == compResult.CompetitionID).Single().LoserCompResult = new CompetitionResultVM()
+				matchVM.CompetitionResults
+					.Where(c => c.CompetitionID == compResult.CompetitionID)
+					.Single().LoserCompResult = new CompetitionResultVM()
 				{
 					OpeningRating = compResult.Ratings.OpeningRating,
 					TransformedRating = compResult.Ratings.TransformedRating,
@@ -90,7 +94,12 @@ namespace PingPongLeague.Controllers
 		// GET: Match/Create
 		public ActionResult Create()
 		{
-			return View();
+			var matchCreateModel = new MatchCreateModel()
+			{
+				Players = _matchService.GetPlayers(),
+				MatchDate = DateTime.Now
+			};
+			return View(matchCreateModel);
 		}
 
 		// POST: Match/Create
@@ -104,7 +113,7 @@ namespace PingPongLeague.Controllers
 			}
 			catch
 			{
-				return View();
+				return View(match);
 			}
 		}
 

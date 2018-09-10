@@ -5,9 +5,10 @@
 <div class="row">
     <div class="col-md-6">
         <h2>All time leaderboard</h2>
+        <p><i>Elo ranked scores for players across all time</i></p>
         <table class="table table-hover">
             <thead class="thead-dark">
-                <tr class="thead-dark"y>
+                <tr class="thead-dark" y>
                     <td>Ranking</td>
                     <td>Player</td>
                     <td>Rating</td>
@@ -16,24 +17,24 @@
             </thead>
             @foreach (var player in Model.AllTimeLeaderboard)
             {
-            <tr>
-                <td>@player.Rank</td>
-                <td>@player.Name</td>
-                <td><span class="badge badge-primary badge-pill">@player.Rating</span></td>
-                <td style="font-family: monospace">@player.Form</td>
-            </tr>
+                <tr>
+                    <td>@player.Rank</td>
+                    <td>@player.Name</td>
+                    <td><span class="badge badge-primary badge-pill">@player.Rating</span></td>
+                    <td style="font-family: monospace">@player.Form</td>
+                </tr>
             }
         </table>
     </div>
     <div class="col-md-3">
 
-        <h2>@($"{DateTime.Now:MMMM} league")</h2>
+        <h2>@($"{DateTime.Now:MMMM} ladder")</h2>
+        <p><i>Challenge players up to 2 places ahead to take their place in the ladder</i></p>
         <table class="table table-hover">
             <thead class="thead-dark">
                 <tr class="thead-dark" y>
                     <td>Ranking</td>
                     <td>Player</td>
-                    <td>Rating</td>
                 </tr>
             </thead>
             @foreach (var player in Model.MonthLeaderboard)
@@ -41,10 +42,10 @@
                 <tr>
                     <td>@player.Rank</td>
                     <td>@player.Name</td>
-                    <td><span class="badge badge-primary badge-pill">@player.Rating</span></td>
-                </tr>}
+                </tr>
+            }
         </table>
-        </div>
+    </div>
     <div class="col-md-3">
             <h2>Latest Results</h2>
             <ul class="list-group">
