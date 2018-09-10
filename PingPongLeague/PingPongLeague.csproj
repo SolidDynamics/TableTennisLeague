@@ -54,9 +54,13 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -106,9 +110,6 @@
     <Reference Include="System.Web.WebPages.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.4\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="WebGrease">
       <Private>True</Private>
@@ -162,6 +163,9 @@
     <Compile Include="Models\Competition\AllTimeCompetitionResult.cs" />
     <Compile Include="Models\Competition\MonthlyCompetition.cs" />
     <Compile Include="Models\Competition\MonthlyCompetitionResult.cs" />
+    <Compile Include="ViewModels\EloMatchResultVM.cs" />
+    <Compile Include="ViewModels\LadderCompetitionVM.cs" />
+    <Compile Include="ViewModels\LadderMatchResultVM.cs" />
     <Compile Include="ViewModels\LeaderboardPosition.cs" />
     <Compile Include="DAL\LeagueContext.cs" />
     <Compile Include="DAL\LeagueInitializer.cs" />
@@ -179,6 +183,7 @@
     <Compile Include="Models\Ratings.cs" />
     <Compile Include="ViewModels\HomePageVM.cs" />
     <Compile Include="ViewModels\MatchCreateModel.cs" />
+    <Compile Include="ViewModels\MatchResultBaseVM.cs" />
     <Compile Include="ViewModels\MatchVM.cs" />
     <Compile Include="ViewModels\PlayerVM.cs" />
   </ItemGroup>
@@ -225,6 +230,9 @@
     <Content Include="Views\Match\Details.cshtml" />
     <Content Include="Views\Match\Create.cshtml" />
     <Content Include="Views\Match\Index.cshtml" />
+    <Content Include="Views\Match\_EloMatchResult.cshtml" />
+    <Content Include="Views\Match\_LadderMatchResult.cshtml" />
+    <Content Include="Views\Match\Ladder.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

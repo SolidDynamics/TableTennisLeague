@@ -1,0 +1,43 @@
+﻿@model PingPongLeague.ViewModels.LadderMatchResultVM 
+
+    <h4>@Model.CompetitionName Rankings</h4>
+    <table class="table table-hover table-striped">
+        <thead class="thead-dark">
+            <tr class="thead-dark">
+                <td></td>
+                <td>@Model.WinnerName</td>
+                <td>@Model.LoserName</td>
+            </tr>
+        </thead>
+        <tr>
+            <td>
+                @Html.DisplayNameFor(p => Model.WinnerResults.OpeningRank)
+            </td>
+            <td>
+                @Model.WinnerResults.OpeningRank
+            </td>
+            <td>
+                @Model.LoserResults.OpeningRank
+            </td>
+        </tr>
+        <tr>
+            <td>
+                @Html.DisplayNameFor(p => Model.WinnerResults.MatchQualifiedForLadder)
+            </td>
+            <td colspan="2">
+                <p>
+                    @(!Model.WinnerResults.MatchQualifiedForLadder ? "The player's ranks were too far apart for this to be a counting ladder match" : "This was a counting ladder match")
+                </p>
+            </td>
+        <tr>
+            <td>
+                @Html.DisplayNameFor(p => Model.WinnerResults.ClosingRank)
+            </td>
+            <td>
+                @($"{Model.WinnerResults.ClosingRank}")
+            </td>
+            <td>
+                @($"{Model.LoserResults.ClosingRank}")
+            </td>
+        </tr>
+    </table>

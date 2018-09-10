@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Newtonsoft.Json;
+using System.Runtime.Serialization;
 
 namespace PingPongLeague.Controllers
 {
@@ -30,8 +32,7 @@ namespace PingPongLeague.Controllers
 
 			var matchVM = new MatchVM()
 			{
-				MatchDate = match.DateOfMatch,
-				CompetitionResults = new List<CompetitionMatchResultVM>()
+				MatchDate = match.DateOfMatch
 			};
 
 			var matchParticipants = match.MatchParticipations;
@@ -45,50 +46,63 @@ namespace PingPongLeague.Controllers
 			matchVM.WinnerName = winner.Player.FullName;
 			matchVM.LoserName = loser.Player.FullName;
 
-			var winnerCompResults = winner.CompetitionResults;
-			var loserCompResults = loser.CompetitionResults;
+			var winnerCompResult = GetPlayerCompResult<AllTimeCompetitionResult>(winner);
+			var loserCompResults = GetPlayerCompResult<AllTimeCompetitionResult>(loser);
 
-			if (!winnerCompResults.Select(cr => cr.Competition.CompetitionID).SequenceEqual(loserCompResults.Select(cr => cr.Competition.CompetitionID)))
-				throw new Exception("The two players have different competitions stored");
-
-
-			foreach (AllTimeCompetitionResult compResult in winnerCompResults.OfType<AllTimeCompetitionResult>())
+			matchVM.AllTimeMatchResult = new EloMatchResultVM()
 			{
-				CompetitionMatchResultVM competitionMatchResult = new CompetitionMatchResultVM
-				{
-					CompetitionID = compResult.Competition.CompetitionID,
-					CompetitionName = compResult.Competition.Name,
-				};
+				CompetitionID = winnerCompResult.Competition.CompetitionID,
+				CompetitionName = winnerCompResult.Competition.Name,
+				WinnerResults = GetEloResultsFromCompResults(winnerCompResult),
+				LoserResults = GetEloResultsFromCompResults(loserCompResults),
+				WinnerName = matchVM.WinnerName,
+				LoserName = matchVM.LoserName
+			};
 
-				competitionMatchResult.WinnerCompResult = new CompetitionResultVM()
-				{
-					OpeningRating = compResult.Ratings.OpeningRating,
-					TransformedRating = compResult.Ratings.TransformedRating,
-					ExpectedScore = compResult.Ratings.ExpectedScore,
-					ActualScore = compResult.Ratings.ActualScore,
-					KFactor = compResult.Ratings.KFactor,
-					ClosingRating = compResult.Ratings.ClosingRating
-				};
+			var winnerLadderCompResult = GetPlayerCompResult<MonthlyCompetitionResult>(winner);
+			var loserLadderCompResults = GetPlayerCompResult<MonthlyCompetitionResult>(loser);
 
-				matchVM.CompetitionResults.Add(competitionMatchResult);
-			}
-
-			foreach (var compResult in loserCompResults.OfType<AllTimeCompetitionResult>())
+			matchVM.MonthlyMatchResult = new LadderMatchResultVM()
 			{
-				matchVM.CompetitionResults
-					.Where(c => c.CompetitionID == compResult.CompetitionID)
-					.Single().LoserCompResult = new CompetitionResultVM()
-				{
-					OpeningRating = compResult.Ratings.OpeningRating,
-					TransformedRating = compResult.Ratings.TransformedRating,
-					ExpectedScore = compResult.Ratings.ExpectedScore,
-					ActualScore = compResult.Ratings.ActualScore,
-					KFactor = compResult.Ratings.KFactor,
-					ClosingRating = compResult.Ratings.ClosingRating
-				};
-			}
+				CompetitionID = winnerLadderCompResult.Competition.CompetitionID,
+				CompetitionName = winnerLadderCompResult.Competition.Name,
+				WinnerResults = GetLadderResultsFromCompResults(winnerLadderCompResult),
+				LoserResults = GetLadderResultsFromCompResults(loserLadderCompResults),
+				WinnerName = matchVM.WinnerName,
+				LoserName = matchVM.LoserName
+			};
 
 			return View(matchVM);
+		}
+
+		private LadderPlayerMatchResultVM GetLadderResultsFromCompResults(MonthlyCompetitionResult compResult)
+		{
+			return new LadderPlayerMatchResultVM()
+			{
+				OpeningRank = compResult.Results.StartingRank,
+				ClosingRank = compResult.Results.EndingRank,
+				MatchQualifiedForLadder = compResult.Results.QualifiesAsLadderChallenge
+			};
+		}
+
+		private static EloPlayerMatchResultVM GetEloResultsFromCompResults(AllTimeCompetitionResult compResult)
+		{
+			return new EloPlayerMatchResultVM()
+			{
+				OpeningRating = compResult.Ratings.OpeningRating,
+				TransformedRating = compResult.Ratings.TransformedRating,
+				ExpectedScore = compResult.Ratings.ExpectedScore,
+				ActualScore = compResult.Ratings.ActualScore,
+				KFactor = compResult.Ratings.KFactor,
+				ClosingRating = compResult.Ratings.ClosingRating
+			};
+		}
+
+		private static T GetPlayerCompResult<T>(MatchParticipation participant) where T : CompetitionResult
+		{
+			var competitionresult = participant.CompetitionResults.OfType<T>().SingleOrDefault();
+			if (competitionresult == null) throw new Exception($"Unable to query All Time Competition Result for player {participant.PlayerID} in match {participant.MatchID}");
+			return competitionresult;
 		}
 
 		// GET: Match/Create
@@ -160,5 +174,74 @@ namespace PingPongLeague.Controllers
 				return View();
 			}
 		}
+
+		public ActionResult Ladder(int Year, int Month)
+		{
+			var chartSeriesList = new List<ChartSeries>();
+			
+			foreach (var playerWithResults in _matchService.GetMonthlyCompetitionResultsOldestFirst()
+				.GroupBy(cr => cr.MatchParticipation.Player, cr => cr, (key, g) => new { Player = key, Results = g }).ToList())
+			{
+				ChartSeries chartSeries = new ChartSeries(playerWithResults.Player.FullName)
+				{
+					DataPoints = new List<DataPoint>()
+				};
+				foreach (var result in playerWithResults.Results)
+				{
+					chartSeries.DataPoints.Add(
+						new DataPoint(
+							result.MatchParticipation.Match.DateOfMatch.ToString("dd/MM"),
+							Convert.ToDouble(result.Results.EndingRank))
+							);
+				}
+				chartSeriesList.Add(chartSeries);
+			}
+
+			LadderCompetitionVM ladderCompetitionVM = new LadderCompetitionVM();
+			ladderCompetitionVM.ChartData = JsonConvert.SerializeObject(chartSeriesList);
+			return View(ladderCompetitionVM);
+		}
+	}
+
+	//DataContract for Serializing Data - required to serve in JSON format
+	[DataContract]
+	public class DataPoint
+	{
+		public DataPoint(string label, double y)
+		{
+			this.Label = label;
+			this.Y = y;
+		}
+
+		//Explicitly setting the name to be used while serializing to JSON.
+		[DataMember(Name = "label")]
+		public string Label = "";
+
+		//Explicitly setting the name to be used while serializing to JSON.
+		[DataMember(Name = "y")]
+		public Nullable<double> Y = null;
+	}
+
+	[DataContract]
+	public class ChartSeries
+	{
+		public ChartSeries(string name)
+		{
+			this.Name = name;
+		}
+
+
+		[DataMember(Name = "type")]
+		public const string Type = "line";
+		
+		[DataMember(Name = "showInLegend")]
+		public const bool ShowInLegend = true;
+
+		//Explicitly setting the name to be used while serializing to JSON.
+		[DataMember(Name = "name")]
+		public string Name = "";
+
+		[DataMember(Name = "dataPoints")]
+		public ICollection<DataPoint> DataPoints;
 	}
 }
