@@ -1,0 +1,66 @@
+﻿@model PingPongLeague.ViewModels.LadderCompetitionVM
+
+@{
+    ViewBag.Title = "Ladder";
+}
+
+<h2>Ladder</h2>
+
+<div id="chartContainer" style="height: 370px; width: 100%;"></div>
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script>
+window.onload = function () {
+
+var chart = new CanvasJS.Chart("chartContainer", {
+	animationEnabled: true,
+	title: {
+		text: "@Model.CompetitionName"
+	},
+	axisY: {
+		includeZero: false
+	},
+	toolTip: {
+		shared: true
+	},
+	data: @Html.Raw(Model.ChartData)
+});
+chart.render();
+
+}
+</script>
+
+
+@*<div>
+        <h4>MonthlyCompetition</h4>
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.Name)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Name)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Subtitle)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Subtitle)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.MaxChallengePlaces)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.MaxChallengePlaces)
+            </dd>
+
+        </dl>
+    </div>
+    <p>
+        @Html.ActionLink("Edit", "Edit", new { id = Model.CompetitionID }) |
+        @Html.ActionLink("Back to List", "Index")
+    </p>*@

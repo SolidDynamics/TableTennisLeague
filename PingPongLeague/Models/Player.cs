@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -19,7 +18,7 @@ namespace PingPongLeague.Models
 		public string FullName => $"{FirstName} {LastName}";
 
 		public virtual ICollection<MatchParticipation> MatchParticipations { get; set; }
-		
+
 		public int PlayerID { get; internal set; }
 
 		public override string ToString() { return FullName; }
@@ -30,13 +29,12 @@ namespace PingPongLeague.Models
 			get
 			{
 				var mostRecentRating = MatchParticipations
-					.SelectMany(mp => mp.CompetitionResults)
-					.Where(cr => cr.Competition.CompetitionType == CompetitionType.AllTime)
-					.OrderByDescending(cr => cr.MatchParticipation.Match.DateOfMatch)
-					.ThenByDescending(cr => cr.MatchParticipation.MatchID)
+					.OrderByDescending(mp => mp.Match.DateOfMatch)
+					.ThenByDescending(mp => mp.Match.DayMatchOrder)
+					.Select(mp => mp.AllTimeCompetitionResult)
 					.FirstOrDefault();
 
-				return (mostRecentRating == null) ? 2000 : mostRecentRating.Ratings.ClosingRating;
+				return (mostRecentRating == null) ? 2000 : mostRecentRating.ClosingRating;
 			}
 		}
 
@@ -60,19 +58,17 @@ namespace PingPongLeague.Models
 				return sb.ToString().Trim();
 			}
 		}
-		
+
 		internal int GetMonthRating(int year, int month)
 		{
 			var mostRecentRating = MatchParticipations
-				.SelectMany(mp => mp.CompetitionResults)
-				.Where(cr => cr.Competition.CompetitionType == CompetitionType.Monthly)
-				.Where(cr => cr.MatchParticipation.Match.DateOfMatch.Year == year)
-				.Where(cr => cr.MatchParticipation.Match.DateOfMatch.Month == month)
-				.OrderByDescending(cr => cr.MatchParticipation.Match.DateOfMatch)
-				.ThenByDescending(cr => cr.MatchParticipation.MatchID)
-				.FirstOrDefault();
+					.Where(mp => mp.Match.DateOfMatch.Year == year && mp.Match.DateOfMatch.Month == month)
+					.OrderByDescending(mp => mp.Match.DateOfMatch)
+					.ThenByDescending(mp => mp.Match.DayMatchOrder)
+					.Select(mp => mp.MonthlyCompetitionResult)
+					.FirstOrDefault();
 
-			return (mostRecentRating == null) ? 2000 : mostRecentRating.Ratings.ClosingRating;
+			return mostRecentRating.EndingRank;
 		}
 	}
 }

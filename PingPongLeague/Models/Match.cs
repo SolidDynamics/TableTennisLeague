@@ -10,10 +10,12 @@ namespace PingPongLeague.Models
         public int MatchID { get; set; }
     
         public DateTime DateOfMatch { get; set; }
+
+		public int DayMatchOrder { get; set; }
         
         public override string ToString() { return $"[{DateOfMatch:ddd dd MMM}] {Winner} beat {Loser}"; }
 
-		public ICollection<MatchParticipation> MatchParticipations { get; set; }
+		public virtual ICollection<MatchParticipation> MatchParticipations { get; set; }
 
 		[NotMapped]
 		public Player Winner

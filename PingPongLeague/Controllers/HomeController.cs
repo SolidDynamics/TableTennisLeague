@@ -1,4 +1,5 @@
 ﻿using PingPongLeague.DAL;
+using PingPongLeague.ServiceLayer;
 using PingPongLeague.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace PingPongLeague.Controllers
 	public class HomeController : Controller
 	{
 		private LeagueContext db = new LeagueContext();
+		private MatchService _matchService = new MatchService();
 
 		public ActionResult Index()
 		{
@@ -22,9 +24,11 @@ namespace PingPongLeague.Controllers
 			return View(homePageViewModel);
 		}
 
-		private IEnumerable<string> GetRecentGames()
+		private Dictionary<int, string> GetRecentGames()
 		{
-			return db.Matches.OrderByDescending(x => x.DateOfMatch).ThenByDescending(x => x.MatchID).Take(10).ToList().Select(x => x.ToString());
+			var matches = _matchService.GetMatches().ToList();
+			matches.Reverse();
+			return matches.Take(10).ToDictionary(x => x.MatchID, x => x.ToString());
 		}
 
 		public ActionResult About()
@@ -50,8 +54,8 @@ namespace PingPongLeague.Controllers
 
 		private IList<LeaderboardPosition> GetMonthLeaderboard()
 		{
-			var playersByMonthRating = db.Players.ToList().OrderByDescending(x => x.GetMonthRating(DateTime.Now.Year, DateTime.Now.Month));
-			var leaderboardPositions = playersByMonthRating.Select((x, i) => new LeaderboardPosition() { Name = x.FullName, Rank = i + 1, Rating = x.GetMonthRating(DateTime.Now.Year, DateTime.Now.Month), Form = x.Form });
+			var playersByMonthRating = db.Players.Where(p => p.MatchParticipations.Where(mp => mp.Match.DateOfMatch.Year == DateTime.Now.Year && mp.Match.DateOfMatch.Month == DateTime.Now.Month).Any()).ToList().OrderBy(x => x.GetMonthRating(DateTime.Now.Year, DateTime.Now.Month)).ToList();
+			var leaderboardPositions = playersByMonthRating.Select(x => new LeaderboardPosition() { Name = x.FullName, Rank = x.GetMonthRating(DateTime.Now.Year, DateTime.Now.Month), Rating = x.GetMonthRating(DateTime.Now.Year, DateTime.Now.Month), Form = x.Form });
 			return leaderboardPositions.ToList();
 		}
 	}

@@ -1,0 +1,77 @@
+﻿@model PingPongLeague.ViewModels.EloMatchResultVM 
+
+    <h4>@Model.CompetitionName Ratings</h4>
+    <table class="table table-hover table-striped">
+        <thead class="thead-dark">
+            <tr class="thead-dark">
+                <td></td>
+                <td>@Model.WinnerName</td>
+                <td>@Model.LoserName</td>
+            </tr>
+        </thead>
+        <tr>
+            <td>
+                @Html.DisplayNameFor(p => Model.WinnerResults.OpeningRating)
+            </td>
+            <td>
+                @Model.WinnerResults.OpeningRating
+            </td>
+            <td>
+                @Model.LoserResults.OpeningRating
+            </td>
+        </tr>
+        <tr>
+            <td>
+                @Html.DisplayNameFor(p => Model.WinnerResults.TransformedRating)
+            </td>
+            <td>
+                @($"{Model.WinnerResults.TransformedRating:#.###}")
+            </td>
+            <td>
+                @($"{Model.LoserResults.TransformedRating:#.###}")
+            </td>
+        <tr>
+            <td>
+                @Html.DisplayNameFor(p => Model.WinnerResults.ExpectedScore)
+            </td>
+            <td>
+                @($"{Model.WinnerResults.ExpectedScore:#.###}")
+            </td>
+            <td>
+                @($"{Model.LoserResults.ExpectedScore:#.###}")
+            </td>
+        </tr>
+        <tr>
+            <td>
+                @Html.DisplayNameFor(p => Model.WinnerResults.KFactor)
+            </td>
+            <td>
+                @Model.WinnerResults.KFactor
+            </td>
+            <td>
+                @Model.LoserResults.KFactor
+            </td>
+        </tr>
+        <tr>
+            <td>
+                @Html.DisplayNameFor(p => Model.WinnerResults.ActualScore)
+            </td>
+            <td>
+                @Model.WinnerResults.ActualScore
+            </td>
+            <td>
+                @Model.LoserResults.ActualScore
+            </td>
+        </tr>
+        <tr>
+            <td>
+                @Html.DisplayNameFor(p => Model.WinnerResults.ClosingRating)
+            </td>
+            <td>
+                @Model.WinnerResults.ClosingRating
+            </td>
+            <td>
+                @Model.LoserResults.ClosingRating
+            </td>
+        </tr>
+    </table>
