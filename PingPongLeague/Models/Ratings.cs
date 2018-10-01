@@ -1,6 +1,6 @@
 ﻿namespace PingPongLeague.Models
 {
-	public class Ratings
+	public class EloResult
 	{
 		public int OpeningRating { get; set; }
 

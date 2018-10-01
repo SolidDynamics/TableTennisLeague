@@ -54,7 +54,7 @@ namespace PingPongLeague.Controllers
 
 		private IList<LeaderboardPosition> GetMonthLeaderboard()
 		{
-			var playersByMonthRating = db.Players.ToList().OrderBy(x => x.GetMonthRating(DateTime.Now.Year, DateTime.Now.Month));
+			var playersByMonthRating = db.Players.Where(p => p.MatchParticipations.Where(mp => mp.Match.DateOfMatch.Year == DateTime.Now.Year && mp.Match.DateOfMatch.Month == DateTime.Now.Month).Any()).ToList().OrderBy(x => x.GetMonthRating(DateTime.Now.Year, DateTime.Now.Month)).ToList();
 			var leaderboardPositions = playersByMonthRating.Select(x => new LeaderboardPosition() { Name = x.FullName, Rank = x.GetMonthRating(DateTime.Now.Year, DateTime.Now.Month), Rating = x.GetMonthRating(DateTime.Now.Year, DateTime.Now.Month), Form = x.Form });
 			return leaderboardPositions.ToList();
 		}

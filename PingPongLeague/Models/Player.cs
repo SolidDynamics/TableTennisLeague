@@ -29,12 +29,12 @@ namespace PingPongLeague.Models
 			get
 			{
 				var mostRecentRating = MatchParticipations
-					.SelectMany(mp => mp.CompetitionResults.OfType<AllTimeCompetitionResult>())
-					.OrderByDescending(cr => cr.MatchParticipation.Match.DateOfMatch)
-					.ThenByDescending(cr => cr.MatchParticipation.Match.DayMatchOrder)
+					.OrderByDescending(mp => mp.Match.DateOfMatch)
+					.ThenByDescending(mp => mp.Match.DayMatchOrder)
+					.Select(mp => mp.AllTimeCompetitionResult)
 					.FirstOrDefault();
 
-				return (mostRecentRating == null) ? 2000 : mostRecentRating.Ratings.ClosingRating;
+				return (mostRecentRating == null) ? 2000 : mostRecentRating.ClosingRating;
 			}
 		}
 
@@ -63,13 +63,12 @@ namespace PingPongLeague.Models
 		{
 			var mostRecentRating = MatchParticipations
 					.Where(mp => mp.Match.DateOfMatch.Year == year && mp.Match.DateOfMatch.Month == month)
-					.SelectMany(mp => mp.CompetitionResults.OfType<MonthlyCompetitionResult>())
-					.OrderByDescending(cr => cr.MatchParticipation.Match.DateOfMatch)
-					.ThenByDescending(cr => cr.MatchParticipation.Match.DayMatchOrder)
-					.FirstOrDefault()
-					.Results.EndingRank;
+					.OrderByDescending(mp => mp.Match.DateOfMatch)
+					.ThenByDescending(mp => mp.Match.DayMatchOrder)
+					.Select(mp => mp.MonthlyCompetitionResult)
+					.FirstOrDefault();
 
-			return mostRecentRating;
+			return mostRecentRating.EndingRank;
 		}
 	}
 }

@@ -7,9 +7,9 @@ namespace PingPongLeague.Calculators
 	{
 		private const int ELO_N_VALUE = 400;
 
-		public Ratings CalculateRatings(int playerRating, int opponentRating, bool playerWon, int KFactor)
+		public EloResult CalculateRatings(int playerRating, int opponentRating, bool playerWon, int KFactor)
 		{
-			var ratings = new Ratings();
+			var ratings = new EloResult();
 
 			ratings.OpeningRating = playerRating;
 

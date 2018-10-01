@@ -13,7 +13,6 @@ namespace PingPongLeague.DAL
 		public DbSet<Match> Matches { get; set; }
 		public DbSet<Player> Players { get; set; }
 		public DbSet<MatchParticipation> MatchParticipations { get; set; }
-		public DbSet<CompetitionResult> CompetitionResults { get; set; }
 		public DbSet<Competition> Competitions { get; set; }
 
 		protected override void OnModelCreating(DbModelBuilder modelBuilder)

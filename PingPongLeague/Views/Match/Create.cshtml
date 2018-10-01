@@ -17,14 +17,14 @@
         <div class="form-group">
             @Html.LabelFor(model => model.MatchDate, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.MatchDate, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.TextBoxFor(model => model.MatchDate, "{0:d/M/yyyy}", new { id = "datepicker" })
                 @Html.ValidationMessageFor(model => model.MatchDate, "", new { @class = "text-danger" })
             </div>
             <div class="col-md-10">
 
                 @Html.DropDownListFor(
-                    x => x.Winner,
-                    new SelectList(Model.Players, "PlayerID", "FullName", null),
+                    x => x.Winner.PlayerID,
+                    new SelectList(Model.Players, "PlayerID", "FullName", Model.Winner),
                     "-- Select --"
                )
                 @Html.ValidationMessageFor(x => x.Winner)
@@ -32,8 +32,8 @@
                 beat
 
                 @Html.DropDownListFor(
-                    x => x.Loser,
-                    new SelectList(Model.Players, "PlayerID", "FullName", null),
+                    x => x.Loser.PlayerID,
+                    new SelectList(Model.Players, "PlayerID", "FullName", Model.Loser),
                     "-- Select --"
                )
                 @Html.ValidationMessageFor(x => x.Loser)

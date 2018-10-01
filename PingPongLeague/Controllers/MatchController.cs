@@ -4,7 +4,6 @@ using PingPongLeague.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
@@ -46,63 +45,47 @@ namespace PingPongLeague.Controllers
 			matchVM.WinnerName = winner.Player.FullName;
 			matchVM.LoserName = loser.Player.FullName;
 
-			var winnerCompResult = GetPlayerCompResult<AllTimeCompetitionResult>(winner);
-			var loserCompResults = GetPlayerCompResult<AllTimeCompetitionResult>(loser);
 
 			matchVM.AllTimeMatchResult = new EloMatchResultVM()
 			{
-				CompetitionID = winnerCompResult.Competition.CompetitionID,
-				CompetitionName = winnerCompResult.Competition.Name,
-				WinnerResults = GetEloResultsFromCompResults(winnerCompResult),
-				LoserResults = GetEloResultsFromCompResults(loserCompResults),
-				WinnerName = matchVM.WinnerName,
-				LoserName = matchVM.LoserName
+				CompetitionID = winner.AllTimeCompetition.CompetitionID,
+				CompetitionName = winner.AllTimeCompetition.Name,
+				WinnerResults = GetEloPlayerMatchResultVM(winner.AllTimeCompetitionResult),
+				LoserResults = GetEloPlayerMatchResultVM(loser.AllTimeCompetitionResult)
 			};
-
-			var winnerLadderCompResult = GetPlayerCompResult<MonthlyCompetitionResult>(winner);
-			var loserLadderCompResults = GetPlayerCompResult<MonthlyCompetitionResult>(loser);
 
 			matchVM.MonthlyMatchResult = new LadderMatchResultVM()
 			{
-				CompetitionID = winnerLadderCompResult.Competition.CompetitionID,
-				CompetitionName = winnerLadderCompResult.Competition.Name,
-				WinnerResults = GetLadderResultsFromCompResults(winnerLadderCompResult),
-				LoserResults = GetLadderResultsFromCompResults(loserLadderCompResults),
-				WinnerName = matchVM.WinnerName,
-				LoserName = matchVM.LoserName
+				CompetitionID = winner.MonthlyCompetition.CompetitionID,
+				CompetitionName = winner.MonthlyCompetition.Name,
+				WinnerResults = GetLadderResultsFromCompResults(winner.MonthlyCompetitionResult),
+				LoserResults = GetLadderResultsFromCompResults(loser.MonthlyCompetitionResult)
 			};
 
 			return View(matchVM);
 		}
 
-		private LadderPlayerMatchResultVM GetLadderResultsFromCompResults(MonthlyCompetitionResult compResult)
-		{
-			return new LadderPlayerMatchResultVM()
-			{
-				OpeningRank = compResult.Results.StartingRank,
-				ClosingRank = compResult.Results.EndingRank,
-				MatchQualifiedForLadder = compResult.Results.QualifiesAsLadderChallenge
-			};
-		}
-
-		private static EloPlayerMatchResultVM GetEloResultsFromCompResults(AllTimeCompetitionResult compResult)
+		private EloPlayerMatchResultVM GetEloPlayerMatchResultVM(EloResult eloResult)
 		{
 			return new EloPlayerMatchResultVM()
 			{
-				OpeningRating = compResult.Ratings.OpeningRating,
-				TransformedRating = compResult.Ratings.TransformedRating,
-				ExpectedScore = compResult.Ratings.ExpectedScore,
-				ActualScore = compResult.Ratings.ActualScore,
-				KFactor = compResult.Ratings.KFactor,
-				ClosingRating = compResult.Ratings.ClosingRating
+				OpeningRating = eloResult.OpeningRating,
+				TransformedRating = eloResult.TransformedRating,
+				ExpectedScore = eloResult.ExpectedScore,
+				ActualScore = eloResult.ActualScore,
+				KFactor = eloResult.KFactor,
+				ClosingRating = eloResult.ClosingRating
 			};
-		}
+		}	
 
-		private static T GetPlayerCompResult<T>(MatchParticipation participant) where T : CompetitionResult
+		private LadderPlayerMatchResultVM GetLadderResultsFromCompResults(LadderResult ladderResult)
 		{
-			var competitionresult = participant.CompetitionResults.OfType<T>().SingleOrDefault();
-			if (competitionresult == null) throw new Exception($"Unable to query All Time Competition Result for player {participant.PlayerID} in match {participant.MatchID}");
-			return competitionresult;
+			return new LadderPlayerMatchResultVM()
+			{
+				OpeningRank = ladderResult.StartingRank,
+				ClosingRank = ladderResult.EndingRank,
+				MatchQualifiedForLadder = ladderResult.QualifiesAsLadderChallenge
+			};
 		}
 
 		// GET: Match/Create
@@ -122,11 +105,12 @@ namespace PingPongLeague.Controllers
 		{
 			try
 			{
-				var matchID = _matchService.AddMatch(match.MatchDate, match.Winner.PlayerID, match.Loser.PlayerID, MatchWinner.Player1);
+				var matchID = _matchService.CreateMatch(match.MatchDate, match.Winner.PlayerID, match.Loser.PlayerID, MatchWinner.Player1);
 				return RedirectToAction("Details", new { Id = matchID });
 			}
-			catch
+			catch(Exception e)
 			{
+				ViewBag.Error = e.Message;
 				return View(match);
 			}
 		}
@@ -179,8 +163,8 @@ namespace PingPongLeague.Controllers
 		{
 			var chartSeriesList = new List<ChartSeries>();
 			
-			foreach (var playerWithResults in _matchService.GetMonthlyCompetitionResultsOldestFirst()
-				.GroupBy(cr => cr.MatchParticipation.Player, cr => cr, (key, g) => new { Player = key, Results = g }).ToList())
+			foreach (var playerWithResults in _matchService.GetMatchParticipations()
+				.GroupBy(cr => cr.Player, cr => cr, (key, g) => new { Player = key, Results = g }).ToList())
 			{
 				ChartSeries chartSeries = new ChartSeries(playerWithResults.Player.FullName)
 				{
@@ -190,8 +174,8 @@ namespace PingPongLeague.Controllers
 				{
 					chartSeries.DataPoints.Add(
 						new DataPoint(
-							result.MatchParticipation.Match.DateOfMatch.ToString("dd/MM"),
-							Convert.ToDouble(result.Results.EndingRank))
+							result.Match.DateOfMatch.ToString("dd/MM"),
+							Convert.ToDouble(result.MonthlyCompetitionResult.EndingRank))
 							);
 				}
 				chartSeriesList.Add(chartSeries);
@@ -245,3 +229,5 @@ namespace PingPongLeague.Controllers
 		public ICollection<DataPoint> DataPoints;
 	}
 }
+
+

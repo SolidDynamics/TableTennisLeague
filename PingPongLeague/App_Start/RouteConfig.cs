@@ -11,8 +11,8 @@ namespace PingPongLeague
 			routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
 			routes.MapRoute(
-				"YearAndMonth",	
-				"{controller}/{action}/{year}/{month}",                      
+				"Ladder",	
+				"Ladder/{year}/{month}",                      
 			new { controller = "Match", action = "Ladder", year = DateTime.Now.Year, month = DateTime.Now.Month } 
 		);
 			routes.MapRoute(

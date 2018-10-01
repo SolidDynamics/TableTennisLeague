@@ -12,7 +12,6 @@ namespace PingPongLeague.ServiceLayer
 
 	public class MatchService
 	{
-
 		private LeagueContext db;
 		private ELORatingCalculator _ratingCalc;
 		private const int RATING_SEED_VALUE = 2000;
@@ -31,27 +30,36 @@ namespace PingPongLeague.ServiceLayer
 			_ratingCalc = new ELORatingCalculator();
 		}
 
-		internal Match GetMatch(int id)
+		public Match GetMatch(int id)
 		{
 			return GetMatches().Single(m => m.MatchID == id);
 		}
 
-		public int AddMatch(DateTime dateOfMatch, string player1FullName, string player2FullName, MatchWinner winner)
+		public int CreateMatch(DateTime dateOfMatch, string player1FullName, string player2FullName, MatchWinner winner)
 		{
-			int player1ID = db.Players.ToList().Where(p => p.FullName == player1FullName).Single().PlayerID;
-			int player2ID = db.Players.ToList().Where(p => p.FullName == player2FullName).Single().PlayerID;
+			var allPlayers = db.Players.ToList();
+			var player1Record = allPlayers.Where(p => p.FullName == player1FullName).SingleOrDefault();
+			var player2Record = allPlayers.Where(p => p.FullName == player2FullName).SingleOrDefault();
 
-			return AddMatch(dateOfMatch, player1ID, player2ID, winner);
+			if (player1Record == null) throw new IndexOutOfRangeException($"Cannot find player with name {player1FullName}");
+			if (player2Record == null) throw new IndexOutOfRangeException($"Cannot find player with name {player2FullName}");
+
+			int player1ID = player1Record.PlayerID;
+			int player2ID = player2Record.PlayerID;
+
+			return CreateMatch(dateOfMatch, player1ID, player2ID, winner);
 		}
 
-		public int AddMatch(DateTime dateOfMatch, int player1, int player2, MatchWinner winner)
+		public int CreateMatch(DateTime dateOfMatch, int player1, int player2, MatchWinner winner)
 		{
+			ValidateMatchIsNotHistoric(dateOfMatch);
+
 			int lastMatchDayOrder = db.Matches.Where(m => DbFunctions.TruncateTime(m.DateOfMatch) == dateOfMatch.Date).Max(m => (int?)m.DayMatchOrder) ?? 0;
 			int matchDayOrder = lastMatchDayOrder + ORDER_VALUE_SPACING;
 			Match match = new Match() { DateOfMatch = dateOfMatch, DayMatchOrder = matchDayOrder, MatchParticipations = new List<MatchParticipation>() };
 
-			var player1LadderRank = GetCurrentRanking(player1, dateOfMatch.Year, dateOfMatch.Month);
-			var player2LadderRank = GetCurrentRanking(player2, dateOfMatch.Year, dateOfMatch.Month);
+			var player1LadderRank = GetCurrentLadderRank(player1, dateOfMatch.Year, dateOfMatch.Month);
+			var player2LadderRank = GetCurrentLadderRank(player2, dateOfMatch.Year, dateOfMatch.Month);
 
 			if (player1LadderRank == player2LadderRank) player2LadderRank++;
 
@@ -64,42 +72,43 @@ namespace PingPongLeague.ServiceLayer
 			return match.MatchID;
 		}
 
+		private void ValidateMatchIsNotHistoric(DateTime dateOfMatch)
+		{
+			var latestMatchDate = db.Matches.Max(m => DbFunctions.TruncateTime(m.DateOfMatch));
+
+			if (latestMatchDate != null && dateOfMatch.Date < latestMatchDate.Value)
+			{
+				throw new NotSupportedException("Adding matches in the past is not currently supported");
+			}
+
+		}
+
 		private MatchParticipation CreateMatchParticipation(int playerId, int opponentId, bool winner, DateTime matchDate, int playerLadderRank, int opponentLadderRank)
 		{
-			var matchParticipation = new MatchParticipation() { PlayerID = playerId, Winner = winner, CompetitionResults = new List<CompetitionResult>() };
+			var matchParticipation = new MatchParticipation() { PlayerID = playerId, Winner = winner };
 
 			foreach (var comp in db.Competitions.ToList())
 			{
-				CompetitionResult compResult;
-
 				if (comp.GetType() == typeof(AllTimeCompetition))
 				{
-					compResult = CreateAllTimeCompetitionResult(comp as AllTimeCompetition, winner, playerId, opponentId);
+					matchParticipation.AllTimeCompetition = comp;
+					matchParticipation.AllTimeCompetitionResult = CalculateEloRatings(playerId, opponentId, winner, (AllTimeCompetition) comp);
 				}
-				else 
+				else
 				{
-					compResult = GetMonthlyCompetitionResult(comp as MonthlyCompetition, winner, playerId, opponentId, matchDate, playerLadderRank, opponentLadderRank);
+					matchParticipation.MonthlyCompetition = comp;
+					matchParticipation.MonthlyCompetitionResult = CalculateLadderRankings(
+						playerId, opponentId, winner, (MonthlyCompetition)comp, matchDate, playerLadderRank, opponentLadderRank);
 				}
-
-				matchParticipation.CompetitionResults.Add(compResult);
 			}
 
 			return matchParticipation;
 		}
 
-		private MonthlyCompetitionResult GetMonthlyCompetitionResult(MonthlyCompetition comp, bool winner, int playerId, int opponentId, DateTime matchDate, int playerLadderRank, int opponentLadderRank)
-		{
-			return new MonthlyCompetitionResult()
-			{
-				Competition = comp,
-				Results = CalculateLadderRankings(playerId, opponentId, winner, comp, matchDate, playerLadderRank, opponentLadderRank),
-				Winner = winner
-			};
-		}
 
-		private LadderResults CalculateLadderRankings(int playerId, int opponentId, bool winner, MonthlyCompetition comp, DateTime matchDate, int playerLadderRank, int opponentLadderRank)
+		private LadderResult CalculateLadderRankings(int playerId, int opponentId, bool winner, MonthlyCompetition comp, DateTime matchDate, int playerLadderRank, int opponentLadderRank)
 		{
-			var ladderResults = new LadderResults
+			var ladderResults = new LadderResult
 			{
 				StartingRank = playerLadderRank
 			};
@@ -108,7 +117,7 @@ namespace PingPongLeague.ServiceLayer
 			ladderResults.QualifiesAsLadderChallenge = rankDifference <= comp.MaxChallengePlaces;
 			var playerIsHigherRanked = ladderResults.StartingRank < opponentLadderRank;
 
-			if(ladderResults.QualifiesAsLadderChallenge && ((!winner && playerIsHigherRanked) || (winner && !playerIsHigherRanked)))
+			if (ladderResults.QualifiesAsLadderChallenge && ((!winner && playerIsHigherRanked) || (winner && !playerIsHigherRanked)))
 			{
 				ladderResults.EndingRank = opponentLadderRank;
 			}
@@ -116,25 +125,22 @@ namespace PingPongLeague.ServiceLayer
 			{
 				ladderResults.EndingRank = ladderResults.StartingRank;
 			}
-				
+
 			return ladderResults;
 		}
 
-		private int GetCurrentRanking(int playerId, int year, int month)
+		private int GetCurrentLadderRank(int playerId, int year, int month)
 		{
-			var mostRecentRating = GetMonthlyCompetitionResultsNewestFirst()
-			.Where(cr => cr.MatchParticipation.PlayerID == playerId
-			&& cr.MatchParticipation.Match.DateOfMatch.Year == year
-			&& cr.MatchParticipation.Match.DateOfMatch.Month == month
-			)
-			.FirstOrDefault();
+			var mostRecentRating = GetMatchParticipations(year, month, true)
+				.Where(mp => mp.PlayerID == playerId)
+				.FirstOrDefault();
 
 			if (mostRecentRating == null)
 			{
 				return GetInitialRanking(playerId, year, month);
 			}
 
-			return mostRecentRating.Results.EndingRank;
+			return mostRecentRating.MonthlyCompetitionResult.EndingRank;
 		}
 
 		/// <summary>
@@ -146,70 +152,46 @@ namespace PingPongLeague.ServiceLayer
 		/// <returns></returns>
 		private int GetInitialRanking(int playerId, int year, int month)
 		{
-			var existingResults = GetMonthlyCompetitionResultsNewestFirst()
-			.Where(cr => cr.MatchParticipation.Match.DateOfMatch.Year == year
-			&& cr.MatchParticipation.Match.DateOfMatch.Month == month);
+			var existingResults = GetMatchParticipations(year, month);
 
-			var currentLowestRank = existingResults.Max(cr => (int?)cr.Results.EndingRank);
+			var currentLowestRank = existingResults.Max(mp => (int?)mp.MonthlyCompetitionResult.EndingRank);
 
 			return currentLowestRank + 1 ?? 1;
 		}
-
-		private AllTimeCompetitionResult CreateAllTimeCompetitionResult(AllTimeCompetition comp, bool winner, int playerId, int opponentId)
+		
+		private EloResult CalculateEloRatings(int playerId, int opponentId, bool winner, AllTimeCompetition competition)
 		{
-			return new AllTimeCompetitionResult()
-			{
-				Competition = comp,
-				Ratings = CalculateEloRatings(playerId, opponentId, winner, comp),
-				Winner = winner
-			};
-		}
-
-		private Ratings CalculateEloRatings(int playerId, int opponentId, bool winner, AllTimeCompetition competition)
-		{
-			var ratings = new Ratings();
-			var mostRecentRating = GetAllTimeCompetitionResultsNewestFirst()
-				.Where(cr => cr.MatchParticipation.PlayerID == playerId
-				&& cr.Competition.CompetitionID == competition.CompetitionID)
+			var ratings = new EloResult();
+			var mostRecentRating = GetMatchParticipations(true)
+				.Where(mp => mp.PlayerID == playerId)
 				.FirstOrDefault();
 
-			var opponentRating = GetAllTimeCompetitionResultsNewestFirst()
-				.Where(cr => cr.MatchParticipation.PlayerID == opponentId
-				&& cr.Competition.CompetitionID == competition.CompetitionID)
+			var opponentRating = GetMatchParticipations(true)
+				.Where(mp => mp.PlayerID == opponentId)
 				.FirstOrDefault();
 
-			var openingRating = (mostRecentRating == null) ? RATING_SEED_VALUE : mostRecentRating.Ratings.ClosingRating;
-			var opptRating = (opponentRating == null) ? RATING_SEED_VALUE : opponentRating.Ratings.ClosingRating;
+			var openingRating = (mostRecentRating == null) ? RATING_SEED_VALUE : mostRecentRating.AllTimeCompetitionResult.ClosingRating;
+			var opptRating = (opponentRating == null) ? RATING_SEED_VALUE : opponentRating.AllTimeCompetitionResult.ClosingRating;
 
 			return _ratingCalc.CalculateRatings(openingRating, opptRating, winner, competition.KFactor);
 		}
 
-		public IQueryable<AllTimeCompetitionResult> GetAllTimeCompetitionResultsOldestFirst()
-		{ 
-			return db.CompetitionResults.OfType<AllTimeCompetitionResult>()
-				.OrderBy(m => m.MatchParticipation.Match.DateOfMatch)
-				.ThenBy(m => m.MatchParticipation.Match.DayMatchOrder);
+		public IQueryable<MatchParticipation> GetMatchParticipations(int year, int month, bool orderDesc = false)
+		{
+			return GetMatchParticipations(orderDesc)
+				.Where(mp => mp.Match.DateOfMatch.Month == month && mp.Match.DateOfMatch.Year == year);
 		}
 
-		public IQueryable<AllTimeCompetitionResult> GetAllTimeCompetitionResultsNewestFirst()
+		public IQueryable<MatchParticipation> GetMatchParticipations(bool orderDesc = false)
 		{
-			return db.CompetitionResults.OfType<AllTimeCompetitionResult>()
-				.OrderByDescending(m => m.MatchParticipation.Match.DateOfMatch)
-				.ThenByDescending(m => m.MatchParticipation.Match.DayMatchOrder);
-		}
+			if (orderDesc)
+				return db.MatchParticipations
+					.OrderByDescending(m => m.Match.DateOfMatch)
+					.ThenByDescending(m => m.Match.DayMatchOrder);
 
-		public IQueryable<MonthlyCompetitionResult> GetMonthlyCompetitionResultsOldestFirst()
-		{
-			return db.CompetitionResults.OfType<MonthlyCompetitionResult>()
-				.OrderBy(m => m.MatchParticipation.Match.DateOfMatch)
-				.ThenBy(m => m.MatchParticipation.Match.DayMatchOrder);
-		}
-
-		public IQueryable<MonthlyCompetitionResult> GetMonthlyCompetitionResultsNewestFirst()
-		{
-			return db.CompetitionResults.OfType<MonthlyCompetitionResult>()
-				.OrderByDescending(m => m.MatchParticipation.Match.DateOfMatch)
-				.ThenByDescending(m => m.MatchParticipation.Match.DayMatchOrder);
+			return db.MatchParticipations
+				.OrderBy(m => m.Match.DateOfMatch)
+				.ThenBy(m => m.Match.DayMatchOrder);
 		}
 
 		public IEnumerable<PlayerVM> GetPlayers()
@@ -221,8 +203,8 @@ namespace PingPongLeague.ServiceLayer
 		{
 			return db.Matches
 				.Include("MatchParticipations")
-				.Include("MatchParticipations.CompetitionResults")
-				.Include("MatchParticipations.CompetitionResults.Competition")
+				.Include("MatchParticipations.AllTimeCompetition")
+				.Include("MatchParticipations.MonthlyCompetition")
 				.Include("MatchParticipations.Player")
 				.OrderBy(m => m.DateOfMatch)
 				.ThenBy(m => m.DayMatchOrder);

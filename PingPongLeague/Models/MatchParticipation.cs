@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Web;
 
 namespace PingPongLeague.Models
 {
@@ -18,7 +14,24 @@ namespace PingPongLeague.Models
 		public int MatchID { get; set; }
 		[Key, Column(Order = 1)]
 		public bool Winner { get; set; }
+		
+		public EloResult AllTimeCompetitionResult { get; set; }
 
-		public virtual ICollection<CompetitionResult> CompetitionResults { get; set; }
+		public virtual Competition AllTimeCompetition { get; set; }
+
+		public LadderResult MonthlyCompetitionResult { get; set; }
+
+		public virtual Competition MonthlyCompetition { get; set; }
+	}
+
+
+
+	public class LadderResult
+	{
+		public int StartingRank { get; set; }
+
+		public bool QualifiesAsLadderChallenge { get; set; }
+
+		public int EndingRank { get; set; }
 	}
 }

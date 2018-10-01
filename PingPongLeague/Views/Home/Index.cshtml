@@ -3,7 +3,7 @@
     ViewData["Title"] = "ICAS Table Tennis League";
 }
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-4">
         <h2>All time leaderboard</h2>
         <p><i>Elo ranked scores for players across all time</i></p>
         <table class="table table-hover">
@@ -26,7 +26,7 @@
             }
         </table>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
 
         <h2>@($"{DateTime.Now:MMMM} ladder")</h2>
         <p><i>Challenge players up to 2 places ahead to take their place in the ladder</i></p>
@@ -46,7 +46,7 @@
             }
         </table>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
             <h2>Latest Results</h2>
             <ul class="list-group">
                 @foreach (var result in Model.RecentGames)
