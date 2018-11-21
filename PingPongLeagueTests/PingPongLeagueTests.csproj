@@ -51,8 +51,6 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="ELORatingCalculatorTests_PlayerIsFavourite.cs" />
-    <Compile Include="ELORatingCalculatorTests_PlayerIsUnderdog.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

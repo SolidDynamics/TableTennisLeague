@@ -1,11 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2016
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PingPongLeague", "PingPongLeague\PingPongLeague.csproj", "{7650D346-EC8D-4703-8CA2-2801926D0139}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PingPongLeagueTests", "PingPongLeagueTests\PingPongLeagueTests.csproj", "{B9CF1394-86B3-4D89-B1B5-785B7CF35CBB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EloRating", "EloRating\EloRating.csproj", "{4355FF37-C30E-4F07-A25F-3520FA27538F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EloRatingTests", "EloRatingTests\EloRatingTests.csproj", "{8095548F-5EE7-413E-A44A-4EA38D683A5D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{B9CF1394-86B3-4D89-B1B5-785B7CF35CBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B9CF1394-86B3-4D89-B1B5-785B7CF35CBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B9CF1394-86B3-4D89-B1B5-785B7CF35CBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4355FF37-C30E-4F07-A25F-3520FA27538F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4355FF37-C30E-4F07-A25F-3520FA27538F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4355FF37-C30E-4F07-A25F-3520FA27538F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4355FF37-C30E-4F07-A25F-3520FA27538F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8095548F-5EE7-413E-A44A-4EA38D683A5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8095548F-5EE7-413E-A44A-4EA38D683A5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8095548F-5EE7-413E-A44A-4EA38D683A5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8095548F-5EE7-413E-A44A-4EA38D683A5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

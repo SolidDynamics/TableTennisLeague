@@ -2,13 +2,19 @@
 @{
     ViewData["Title"] = "ICAS Table Tennis League";
 }
+<div class="container">
+    <div class="col-12">
+        @Html.ActionLink("Add a result", "Create", "Match", null, new { @class= "btn btn-primary btn-lg" })
+
+    </div>
+</div>
 <div class="row">
     <div class="col-md-4">
         <h2>All time leaderboard</h2>
         <p><i>Elo ranked scores for players across all time</i></p>
         <table class="table table-hover">
             <thead class="thead-dark">
-                <tr class="thead-dark" y>
+                <tr class="thead-dark">
                     <td>Ranking</td>
                     <td>Player</td>
                     <td>Rating</td>

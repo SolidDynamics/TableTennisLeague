@@ -1,54 +1,63 @@
 ﻿@model PingPongLeague.ViewModels.MatchCreateModel
-
+@section Scripts
+{
+    <script type="text/javascript">
+        $(function () {
+            $('.datepicker').datepicker();
+        });
+    </script>
+}
 @{
     ViewBag.Title = "Create";
 }
 
-<h2>Create</h2>
+<h2>Add a result</h2>
 
-@using (Html.BeginForm()) 
+@using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
-    
-    <div class="form-horizontal">
-        <h4>MatchCreateModel</h4>
-        <hr />
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        <div class="form-group">
-            @Html.LabelFor(model => model.MatchDate, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.TextBoxFor(model => model.MatchDate, "{0:d/M/yyyy}", new { id = "datepicker" })
-                @Html.ValidationMessageFor(model => model.MatchDate, "", new { @class = "text-danger" })
-            </div>
-            <div class="col-md-10">
 
-                @Html.DropDownListFor(
-                    x => x.Winner.PlayerID,
-                    new SelectList(Model.Players, "PlayerID", "FullName", Model.Winner),
-                    "-- Select --"
-               )
-                @Html.ValidationMessageFor(x => x.Winner)
-
-                beat
-
-                @Html.DropDownListFor(
-                    x => x.Loser.PlayerID,
-                    new SelectList(Model.Players, "PlayerID", "FullName", Model.Loser),
-                    "-- Select --"
-               )
-                @Html.ValidationMessageFor(x => x.Loser)
-
-                </div>
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="form-group row">
+        @Html.LabelFor(model => model.MatchDate, htmlAttributes: new { @class = "col-sm-2 control-label" })
+        <div class="col-sm-4">
+            @Html.TextBoxFor(model => model.MatchDate, "{0:yyyy-MM-dd}", htmlAttributes: new { @class = "form-control", @type = "date" })
+            @Html.ValidationMessageFor(model => model.MatchDate, "", new { @class = "text-warning" })
         </div>
+    </div>
+    <div class="form-group row">
+        @Html.LabelFor(model => model.Winner, htmlAttributes: new { @class = "col-sm-2 control-label" })
+        <div class="col-sm-4">
 
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
+            @Html.DropDownListFor(
+         x => x.Winner,
+         new SelectList(ViewBag.Players, "PlayerID", "FullName", Model.Winner),
+         "-- Select --",
+         new { @class = "form-control" })
+                @Html.ValidationMessageFor(x => x.Winner, string.Empty, new { @class = "text-warning" })
             </div>
+        </div>
+    <div class="form-group row">
+        @Html.LabelFor(model => model.Loser, htmlAttributes: new { @class = "col-sm-2 control-label" })
+        <div class="col-md-4">
+            @Html.DropDownListFor(
+                x => x.Loser,
+                new SelectList(ViewBag.Players, "PlayerID", "FullName", Model.Loser),
+                "-- Select --",
+         new { @class = "form-control" }
+           )
+            @Html.ValidationMessageFor(x => x.Loser, string.Empty, new { @class = "text-warning" })
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-3">
+            <input type="submit" value="Create" class="btn btn-default" />
+        </div>
+        <div class="col-md-3">
+            <span class="text-warning">@Html.ValidationMessage("Model")</span>
         </div>
     </div>
 }
-
 <div>
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("Back to Home Page", "Index", "Home")
 </div>
