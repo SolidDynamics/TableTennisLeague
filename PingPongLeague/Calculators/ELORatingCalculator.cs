@@ -3,7 +3,7 @@ using System;
 
 namespace PingPongLeague.Calculators
 {
-	public class ELORatingCalculator
+	public class EloRatingCalculator
 	{
 		private const int ELO_N_VALUE = 400;
 
@@ -17,7 +17,7 @@ namespace PingPongLeague.Calculators
 
 			ratings.OpponentRating = opponentRating;
 
-			ratings.OpponentTransformedRating = Math.Pow(10, ((double)ratings.OpponentRating / ELO_N_VALUE));
+			ratings.OpponentTransformedRating = Math.Pow(10, (double)ratings.OpponentRating / ELO_N_VALUE);
 
 			ratings.ExpectedScore = ratings.TransformedRating / (ratings.TransformedRating + ratings.OpponentTransformedRating);
 

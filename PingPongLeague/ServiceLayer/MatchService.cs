@@ -13,7 +13,7 @@ namespace PingPongLeague.ServiceLayer
 	public class MatchService
 	{
 		private LeagueContext db;
-		private ELORatingCalculator _ratingCalc;
+		private EloRatingCalculator _ratingCalc;
 		private const int RATING_SEED_VALUE = 2000;
 		private const int ORDER_VALUE_SPACING = 10;
 		private Dictionary<int, int> _newPlayerRanksAdded = new Dictionary<int, int>();
@@ -21,13 +21,13 @@ namespace PingPongLeague.ServiceLayer
 		public MatchService()
 		{
 			db = new LeagueContext();
-			_ratingCalc = new ELORatingCalculator();
+			_ratingCalc = new EloRatingCalculator();
 		}
 
 		public MatchService(LeagueContext leagueContext)
 		{
 			db = leagueContext;
-			_ratingCalc = new ELORatingCalculator();
+			_ratingCalc = new EloRatingCalculator();
 		}
 
 		public Match GetMatch(int id)
@@ -53,6 +53,8 @@ namespace PingPongLeague.ServiceLayer
 		public int CreateMatch(DateTime dateOfMatch, int player1, int player2, MatchWinner winner)
 		{
 			ValidateMatchIsNotHistoric(dateOfMatch);
+
+			if (player1 == player2) throw new Exception("Player 1 and Player 2 must be different players");
 
 			int lastMatchDayOrder = db.Matches.Where(m => DbFunctions.TruncateTime(m.DateOfMatch) == dateOfMatch.Date).Max(m => (int?)m.DayMatchOrder) ?? 0;
 			int matchDayOrder = lastMatchDayOrder + ORDER_VALUE_SPACING;
