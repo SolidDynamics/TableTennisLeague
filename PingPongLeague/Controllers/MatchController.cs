@@ -7,6 +7,7 @@ using System.Linq;
 using System.Web.Mvc;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using EloRating;
 
 namespace PingPongLeague.Controllers
 {
@@ -76,7 +77,7 @@ namespace PingPongLeague.Controllers
 				KFactor = eloResult.KFactor,
 				ClosingRating = eloResult.ClosingRating
 			};
-		}	
+		}
 
 		private LadderPlayerMatchResultVM GetLadderResultsFromCompResults(LadderResult ladderResult)
 		{
@@ -91,9 +92,10 @@ namespace PingPongLeague.Controllers
 		// GET: Match/Create
 		public ActionResult Create()
 		{
+
+			ViewBag.Players = _matchService.GetPlayers();
 			var matchCreateModel = new MatchCreateModel()
 			{
-				Players = _matchService.GetPlayers(),
 				MatchDate = DateTime.Now
 			};
 			return View(matchCreateModel);
@@ -103,16 +105,45 @@ namespace PingPongLeague.Controllers
 		[HttpPost]
 		public ActionResult Create(MatchCreateModel match)
 		{
-			try
+
+			if (ModelState.IsValid)
 			{
-				var matchID = _matchService.CreateMatch(match.MatchDate, match.Winner.PlayerID, match.Loser.PlayerID, MatchWinner.Player1);
-				return RedirectToAction("Details", new { Id = matchID });
+				try
+				{
+					var matchID = _matchService.CreateMatch(match.MatchDate, match.Winner, match.Loser, MatchWinner.Player1);
+					return RedirectToAction("Details", new { Id = matchID });
+				}
+				catch (Exception e)
+				{
+					ModelState.AddModelError(string.Empty, e.Message);
+				}
 			}
-			catch(Exception e)
+
+			ViewBag.Players = _matchService.GetPlayers();
+			return View(match);
+		}
+
+		public ActionResult OptimiseKFactor()
+		{
+			var eloFixtures = new List<Contest<Player>>();
+
+			foreach (var match in _matchService.GetMatches())
 			{
-				ViewBag.Error = e.Message;
-				return View(match);
+				var matchParticipationsList = match.MatchParticipations.ToList();
+				var player1mp = matchParticipationsList[0];
+				MatchParticipation player2mp = matchParticipationsList[1];
+
+				eloFixtures.Add(new Contest<Player>
+				{
+					Player1 = player1mp.Player,
+					Player2 = player2mp.Player,
+					Result = player1mp.Winner ? ContestResult.Player1Won : ContestResult.Player2Won
+				});
 			}
+
+			KFactorCalculator<Player> calculator = new KFactorCalculator<Player>(eloFixtures, 25);
+
+			return View(calculator.GetResults());
 		}
 
 		// GET: Match/Edit/5
@@ -162,7 +193,7 @@ namespace PingPongLeague.Controllers
 		public ActionResult Ladder(int Year, int Month)
 		{
 			var chartSeriesList = new List<ChartSeries>();
-			
+
 			foreach (var playerWithResults in _matchService.GetMatchParticipations()
 				.GroupBy(cr => cr.Player, cr => cr, (key, g) => new { Player = key, Results = g }).ToList())
 			{
@@ -217,7 +248,7 @@ namespace PingPongLeague.Controllers
 
 		[DataMember(Name = "type")]
 		public const string Type = "line";
-		
+
 		[DataMember(Name = "showInLegend")]
 		public const bool ShowInLegend = true;
 
